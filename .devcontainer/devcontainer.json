@@ -1,6 +1,6 @@
 {
   "name": "NemoClaw Development Environment",
-  "image": "mcr.microsoft.com/devcontainers/python:3.11",
+  "image": "mcr.microsoft.com/vscode/devcontainers/python:3.11",
   "features": {
     "ghcr.io/devcontainers/features/git:1": {},
     "ghcr.io/devcontainers/features/github-cli:1": {},
@@ -29,7 +29,7 @@
     }
   },
   "postCreateCommand": "bash scripts/setup.sh",
-  "remoteUser": "vscode",
+  "remoteUser": "root",
   "containerEnv": {
     "NVIDIA_API_KEY": "${localEnv:NVIDIA_API_KEY}",
     "TELEGRAM_BOT_TOKEN": "${localEnv:TELEGRAM_BOT_TOKEN}",

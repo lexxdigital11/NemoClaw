@@ -7,8 +7,8 @@ python-dotenv>=1.0
 rich>=13.0
 typer>=0.7.0
 
-# NVIDIA AI Foundation Model SDK
-nvidia-ai-foundation-models>=0.1.0
+# NVIDIA AI via OpenAI SDK
+openai>=1.0.0
 
 # Development dependencies
 pytest>=7.0.0

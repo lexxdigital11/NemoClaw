@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Dict, Any
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
-from nvidia_ai_foundation_models import NVIDIAFoundationModelClient
+from openai import AsyncOpenAI
 
 # Configure logging
 logging.basicConfig(
@@ -26,12 +26,17 @@ class NemoClaw:
         self.config = self.load_config()
         self.agent_name = self.config.get('agent_name', 'claudy')
         
-        # Initialize NVIDIA client
+        # Initialize NVIDIA client via OpenAI SDK
         self.nvidia_client = None
-        if self.config['nvidia'].get('api_key'):
-            self.nvidia_client = NVIDIAFoundationModelClient(
+        if self.config.get('nvidia') and self.config['nvidia'].get('api_key'):
+            self.nvidia_client = AsyncOpenAI(
                 api_key=self.config['nvidia']['api_key'],
-                base_url=self.config['nvidia'].get('base_url', 'https://api.nvidia.com/v1')
+                base_url=self.config['nvidia'].get('base_url', 'https://integrate.api.nvidia.com/v1')
+            )
+        elif os.getenv('NVIDIA_API_KEY'):
+            self.nvidia_client = AsyncOpenAI(
+                api_key=os.getenv('NVIDIA_API_KEY'),
+                base_url='https://integrate.api.nvidia.com/v1'
             )
         
         logger.info(f"🤖 NemoClaw initialized with agent name: {self.agent_name}")
@@ -100,13 +105,13 @@ class NemoClaw:
         """Generate response using NVIDIA AI Foundation Models"""
         try:
             # Use NVIDIA AI to generate response
-            response = self.nvidia_client.generate(
+            completion = await self.nvidia_client.chat.completions.create(
                 model="nvidia/llama-3.1-nemotron-70b-instruct",
-                prompt=prompt,
+                messages=[{"role": "user", "content": prompt}],
                 max_tokens=1000,
                 temperature=0.7
             )
-            return response['text']
+            return completion.choices[0].message.content
         except Exception as e:
             logger.error(f"Error calling NVIDIA API: {e}")
             return f"❌ Error generating response: {str(e)}"
@@ -133,7 +138,11 @@ def main():
     nemo_claw = NemoClaw()
     
     # Check if running with Telegram bot
-    if nemo_claw.config.get('telegram', {}).get('bot_token'):
+    bot_token = nemo_claw.config.get('telegram', {}).get('bot_token') or os.getenv('TELEGRAM_BOT_TOKEN')
+    if bot_token:
+        if 'telegram' not in nemo_claw.config:
+            nemo_claw.config['telegram'] = {}
+        nemo_claw.config['telegram']['bot_token'] = bot_token
         nemo_claw.run_telegram_bot()
     else:
         print("🤖 NemoClaw initialized successfully!")

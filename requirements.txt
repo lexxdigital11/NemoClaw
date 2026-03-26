@@ -1,0 +1,18 @@
+# Core dependencies for NemoClaw
+requests>=2.31.0
+aiohttp>=3.8.0
+python-telegram-bot>=20.0
+pyyaml>=6.0
+python-dotenv>=1.0
+rich>=13.0
+typer>=0.7.0
+
+# NVIDIA AI Foundation Model SDK
+nvidia-ai-foundation-models>=0.1.0
+
+# Development dependencies
+pytest>=7.0.0
+black>=23.0.0
+isort>=5.12.0
+flake8>=6.0.0
+mypy>=1.0.0
